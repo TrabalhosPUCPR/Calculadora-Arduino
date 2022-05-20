@@ -6,6 +6,7 @@ LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
 
 String first = "";
 String second = "";
+int maxDigitLength = 3;
 char expr;
 double total = 0;
 int digitPos = 0;
@@ -47,7 +48,7 @@ void loop(){
 }
 
 String calculate(){
-  int result = 0;
+  long result = 0;
   first = convert(first);
   second = convert(second);
   switch(expr){
@@ -219,11 +220,11 @@ void clear(){
 void keypad(){
   char key = customKeypad.getKey();
   switch(key){
-    case '0' ... '9': // This keeps collecting the first value until a operator is pressed "+-*/"
-    if(AWAITING == FIRST){
+    case '0' ... '9':
+    if(AWAITING == FIRST && first.length() <= maxDigitLength){
       first += key;
       printLcd(String(key));
-    }else if(AWAITING == SECOND){
+    }else if(AWAITING == SECOND && second.length() <= maxDigitLength){
       second += key;
       printLcd(String(key));
     }
@@ -243,16 +244,16 @@ void keypad(){
     case '=':
     if(first == ""){
       changeMode();
-    }else{
+    }else if(AWAITING != ANSWERED){
       if(ESTADO == CALCULADORA){
         printLcd("=");
         printLcd(calculate());
       }else{
         printLcd("=>");
         if(toDecimal){
-        	printLcd(convert(first));
+          printLcd(convert(first));
         }else{
-        	printLcd(reconvert(first));
+          printLcd(reconvert(first));
         }
       }
       AWAITING = ANSWERED;
