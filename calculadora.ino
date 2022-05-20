@@ -2,6 +2,13 @@
 #include <Wire.h> 
 #include <LiquidCrystal.h>
 
+/*
+	PRA MUDAR A BASE, CLICA NO CANCEL QUANDO NAO TEM NADA DIGITADO
+    PRA MUDAR O MODO DA CALCULADORA, APERTA NO = QUANDO NAO TEM NADA DIGITADO
+*/
+
+
+
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
 
 String first = "";
@@ -144,14 +151,45 @@ bool toDecimal = false;
 void changeMode(){
   clear();
   lcd.setCursor(0,0);
-  if(ESTADO == CALCULADORA){
+  switch(ESTADO){
+    case CALCULADORA:
     BASE = BINARIO;
     ESTADO = CONVERSOR_DEC_BIN;
     toDecimal = false;
-    AWAITING = FIRST;
     lcd.print("Conv");
     lcd.setCursor(5,0);
     lcd.print("Dec => Bin");
+    break;
+    default:
+    ESTADO = CALCULADORA;
+    BASE = DECIMAL;
+    lcd.print("Calc");
+    lcd.setCursor(5,0);
+    lcd.print("Dec       ");
+    break;
+  }
+}
+
+void changeBase(){
+  if(ESTADO == CALCULADORA){
+    AWAITING = FIRST;
+    switch(BASE){
+      case DECIMAL:
+      BASE = BINARIO;
+      lcd.setCursor(5, 0);
+      lcd.print("Bin");
+      break;
+      case BINARIO:
+      BASE = OCTAL;
+      lcd.setCursor(5, 0);
+      lcd.print("Oct");
+      break;
+      case OCTAL:
+      BASE = DECIMAL;
+      lcd.setCursor(5, 0);
+      lcd.print("Dec");
+      break;
+    }
   }else{
     switch(ESTADO){
       case CONVERSOR_DEC_BIN:
@@ -173,31 +211,13 @@ void changeMode(){
       lcd.setCursor(5,0);
       lcd.print("Oct => Dec");
       break;
-      default:
-      ESTADO = CALCULADORA;
-      BASE = DECIMAL;
-      lcd.print("Calc");
+      case CONVERSOR_OCT_DEC:
+      ESTADO = CONVERSOR_DEC_BIN;
+      toDecimal = false;
       lcd.setCursor(5,0);
-      lcd.print("Dec       ");
+      lcd.print("Dec => Bin");
       break;
     }
-  }
-}
-
-void changeBase(){
-  AWAITING = FIRST;
-  if(BASE == DECIMAL){
-    BASE = BINARIO;
-    lcd.setCursor(5, 0);
-    lcd.print("Bin");
-  }else if(BASE == BINARIO){
-    BASE = OCTAL;
-    lcd.setCursor(5, 0);
-    lcd.print("Oct");
-  }else{
-    BASE = DECIMAL;
-    lcd.setCursor(5, 0);
-    lcd.print("Dec");
   }
 }
 
@@ -260,7 +280,7 @@ void keypad(){
     }
     break;
     case 'C':
-    if(first == "" && ESTADO == CALCULADORA && AWAITING != ANSWERED){
+    if(first == "" && AWAITING != ANSWERED){
       changeBase();
       clear();
     }else{
