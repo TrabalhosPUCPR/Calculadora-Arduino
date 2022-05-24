@@ -69,6 +69,7 @@ String calculate(){
     result = first.toInt() * second.toInt();
     break;
     case '/':
+    if(first.toInt() == 0 || second.toInt() == 0){error(); return "";}
     result = first.toInt() / second.toInt();
     break;
   }
